@@ -17,7 +17,19 @@ export function useReveal() {
     const setIn = (el, on) => {
       if (el.hasAttribute('data-stagger')) {
         el.querySelectorAll('.reveal').forEach((child, i) => {
-          child.style.transitionDelay = on ? `${i * STAGGER_STEP_MS}ms` : '0ms';
+          if (on) {
+            // Stagger the entrance, then clear the delay once the reveal
+            // finishes so it can't lag this element's later hover/tilt
+            // transitions (e.g. the last card waiting 180ms before it reacts).
+            child.style.transitionDelay = `${i * STAGGER_STEP_MS}ms`;
+            child.addEventListener(
+              'transitionend',
+              () => { child.style.transitionDelay = ''; },
+              { once: true }
+            );
+          } else {
+            child.style.transitionDelay = '0ms';
+          }
           child.classList.toggle('is-in', on);
         });
       } else {

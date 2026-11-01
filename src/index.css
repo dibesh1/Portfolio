@@ -685,6 +685,25 @@ footer small { color: var(--ink-mute); font-size: 12.5px; font-family: 'JetBrain
 .reveal[data-delay="4"] { transition-delay: 180ms; }
 .reveal[data-delay="5"] { transition-delay: 225ms; }
 
+/* The .reveal rules above sit later in the cascade than the card rules, so
+   their `transition` shorthand would drop the cards' box-shadow easing (shadow
+   snaps on hover) and slow the Projects tilt to 560ms. Re-assert the cards'
+   own transitions and hover lift. Guarded to no-preference so the reduced-
+   motion block below still wins for users who ask for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .work-card.reveal {
+    transition: opacity 560ms var(--ease-out-expo),
+                transform 220ms var(--ease-out-expo),
+                box-shadow 500ms var(--ease-out-expo);
+  }
+  .profile-card.reveal {
+    transition: opacity 560ms var(--ease-out-expo),
+                transform 500ms var(--ease-out-expo);
+  }
+  #projects .work-card.reveal.is-in:hover { transform: translateY(-6px); }
+  .profile-card.reveal.is-in:hover { transform: translateY(-6px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
   .hero-anim, .hero-slide-l, .hero-slide-r { opacity: 1; animation: none; transform: none; }

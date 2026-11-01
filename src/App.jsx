@@ -10,8 +10,32 @@ import { useReveal } from './hooks/useReveal.js';
 import { useMagnetic } from './hooks/useMagnetic.js';
 
 // Below-the-fold sections load as separate chunks after first paint.
-const Projects = lazy(() => import('./components/Projects.jsx'));
-const Contact = lazy(() => import('./components/Contact.jsx'));
+//
+// A dynamic import can reject when a visitor still on an OLD index.html requests
+// a chunk whose content hash changed in a redeploy. Un-wrapped, that rejection
+// unmounts the whole app (blank page). Retry once via a reload (which fetches
+// the fresh index.html + new hashes); if it still fails, degrade to rendering
+// nothing instead of crashing the site.
+const lazyWithRetry = (importFn, key) =>
+  lazy(() =>
+    importFn().catch((err) => {
+      let reloadedBefore = true; // if storage is unavailable, skip reload (no loop)
+      try {
+        const flag = `chunk-retry-${key}`;
+        reloadedBefore = sessionStorage.getItem(flag) === '1';
+        if (!reloadedBefore) sessionStorage.setItem(flag, '1');
+      } catch { /* storage blocked (private mode) — fall through to the stub */ }
+      if (!reloadedBefore) {
+        window.location.reload();
+        return new Promise(() => {}); // suspend render until the reload lands
+      }
+      console.error(`Failed to load the "${key}" section chunk:`, err);
+      return { default: () => null };
+    })
+  );
+
+const Projects = lazyWithRetry(() => import('./components/Projects.jsx'), 'projects');
+const Contact = lazyWithRetry(() => import('./components/Contact.jsx'), 'contact');
 
 /** Buttery in-page anchor scrolling for the nav links. */
 function useAnchorSmoothScroll() {
