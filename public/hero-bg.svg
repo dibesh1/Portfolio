@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Data analytics background">
+  <defs>
+    <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#60a5fa" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#60a5fa" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#60a5fa" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#3b82f6" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#3b82f6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="#0c1838"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+
+  <!-- grid -->
+  <g stroke="#93c5fd" stroke-opacity="0.10" stroke-width="1">
+    <line x1="0" y1="150" x2="1600" y2="150"/>
+    <line x1="0" y1="300" x2="1600" y2="300"/>
+    <line x1="0" y1="450" x2="1600" y2="450"/>
+    <line x1="0" y1="600" x2="1600" y2="600"/>
+    <line x1="0" y1="750" x2="1600" y2="750"/>
+    <line x1="200" y1="0" x2="200" y2="900"/>
+    <line x1="400" y1="0" x2="400" y2="900"/>
+    <line x1="600" y1="0" x2="600" y2="900"/>
+    <line x1="800" y1="0" x2="800" y2="900"/>
+    <line x1="1000" y1="0" x2="1000" y2="900"/>
+    <line x1="1200" y1="0" x2="1200" y2="900"/>
+    <line x1="1400" y1="0" x2="1400" y2="900"/>
+  </g>
+
+  <!-- bar chart (left) -->
+  <g>
+    <rect x="120"  y="560" width="60" height="200" rx="6" fill="url(#bar)"/>
+    <rect x="210"  y="470" width="60" height="290" rx="6" fill="url(#bar)"/>
+    <rect x="300"  y="610" width="60" height="150" rx="6" fill="url(#bar)"/>
+    <rect x="390"  y="400" width="60" height="360" rx="6" fill="url(#bar)"/>
+    <rect x="480"  y="520" width="60" height="240" rx="6" fill="url(#bar)"/>
+    <rect x="570"  y="330" width="60" height="430" rx="6" fill="url(#bar)"/>
+  </g>
+
+  <!-- line / area chart (right) -->
+  <path d="M 820 480 L 940 380 L 1060 430 L 1180 280 L 1300 340 L 1420 220 L 1500 260 L 1500 760 L 820 760 Z"
+        fill="url(#area)"/>
+  <polyline points="820,480 940,380 1060,430 1180,280 1300,340 1420,220 1500,260"
+            fill="none" stroke="#60a5fa" stroke-width="3" stroke-opacity="0.9"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#93c5fd">
+    <circle cx="820" cy="480" r="6"/>
+    <circle cx="940" cy="380" r="6"/>
+    <circle cx="1060" cy="430" r="6"/>
+    <circle cx="1180" cy="280" r="6"/>
+    <circle cx="1300" cy="340" r="6"/>
+    <circle cx="1420" cy="220" r="6"/>
+    <circle cx="1500" cy="260" r="6"/>
+  </g>
+
+  <!-- scatter dots (top) -->
+  <g fill="#3b82f6" fill-opacity="0.55">
+    <circle cx="260" cy="120" r="5"/>
+    <circle cx="340" cy="180" r="4"/>
+    <circle cx="430" cy="100" r="6"/>
+    <circle cx="520" cy="200" r="4"/>
+    <circle cx="980" cy="140" r="5"/>
+    <circle cx="1080" cy="110" r="4"/>
+    <circle cx="1180" cy="170" r="6"/>
+    <circle cx="1320" cy="120" r="4"/>
+  </g>
+
+  <!-- donut chart (lower right) -->
+  <g transform="translate(1320 620)">
+    <circle r="74" fill="none" stroke="#1a2c54" stroke-width="26"/>
+    <circle r="74" fill="none" stroke="#3b82f6" stroke-width="26" stroke-opacity="0.85"
+            stroke-dasharray="300 465" transform="rotate(-90)"/>
+    <circle r="74" fill="none" stroke="#93c5fd" stroke-width="26" stroke-opacity="0.7"
+            stroke-dasharray="120 465" stroke-dashoffset="-300" transform="rotate(-90)"/>
+  </g>
+</svg>
