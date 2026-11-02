@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { fetchExperience, fetchSkills } from '../lib/content.js';
 
-const SKILL_BLOCKS = [
+// Fallback content, used until/unless Supabase data loads so the section
+// always renders.
+const FALLBACK_SKILLS = [
   {
     title: 'Data & Analysis',
     tags: ['SQL', 'Python', 'Pandas', 'NumPy', 'scikit-learn', 'ETL', 'EDA', 'A/B Testing'],
@@ -19,7 +22,7 @@ const SKILL_BLOCKS = [
   },
 ];
 
-const ROLES = [
+const FALLBACK_ROLES = [
   {
     when: 'Dec 2023 — Nov 2024',
     tag: 'Now',
@@ -93,6 +96,33 @@ export default function Experience() {
   const cardRefs = useRef([]);
   const tabsRef = useRef(null);
   const [active, setActive] = useState(0);
+  // Live content from Supabase (published rows, ordered); falls back to the
+  // built-in arrays on any error/empty result.
+  const [roles, setRoles] = useState(FALLBACK_ROLES);
+  const [skills, setSkills] = useState(FALLBACK_SKILLS);
+  useEffect(() => {
+    let alive = true;
+    Promise.all([fetchExperience(), fetchSkills()]).then(([rolesData, skillsData]) => {
+      if (!alive) return;
+      if (rolesData?.length) {
+        setRoles(
+          rolesData.map((r) => ({
+            when: r.period,
+            tag: r.tag,
+            title: r.title,
+            org: r.org,
+            note: r.note,
+            current: r.is_current,
+            bullets: r.bullets || [],
+          }))
+        );
+      }
+      if (skillsData?.length) {
+        setSkills(skillsData.map((s) => ({ title: s.title, tags: s.tags || [] })));
+      }
+    });
+    return () => { alive = false; };
+  }, []);
   // Static mode: no scroll-flip pinning. Used on tablet/mobile (<=980px)
   // or when the user prefers reduced motion. Cards stack as a simple list.
   // Initialized synchronously so mobile never flashes hidden cards on mount.
@@ -135,7 +165,7 @@ export default function Experience() {
     let inRange = true;   // stage near viewport — gates all work
     let stageTop = 0;
     let total = 1;
-    const N = ROLES.length;
+    const N = roles.length;
 
     // Measure once (and on resize) — never in the scroll hot path.
     const measure = () => {
@@ -213,7 +243,7 @@ export default function Experience() {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
     };
-  }, [staticMode]);
+  }, [staticMode, roles.length]);
 
   // Click a tab → highlight it and go to that role.
   const jumpTo = (i) => {
@@ -227,7 +257,7 @@ export default function Experience() {
     // Pinned: scroll to the point in the stage where this card is active.
     const stage = stageRef.current;
     if (!stage) return;
-    const N = ROLES.length;
+    const N = roles.length;
     const midSpan = PHASE_EXIT - PHASE_ENTER;
     const targetMp = N > 1 ? i / (N - 1) : 0;
     const targetP = PHASE_ENTER + targetMp * midSpan;
@@ -236,7 +266,7 @@ export default function Experience() {
     window.scrollTo({ top: stageTop + targetP * total, behavior: 'smooth' });
   };
 
-  const stageHeight = `${(ROLES.length * 0.48 + 0.7) * 100}vh`; // restored pre-comment pacing
+  const stageHeight = `${(roles.length * 0.48 + 0.7) * 100}vh`; // restored pre-comment pacing
 
   return (
     <section id="experience" className="xp">
@@ -259,7 +289,7 @@ export default function Experience() {
               <div className="xp-skills">
                 <span className="mono xp-col-label reveal">Skills</span>
                 <div className="skills" data-stagger>
-                  {SKILL_BLOCKS.map((block) => (
+                  {skills.map((block) => (
                     <div className="skill-block reveal" key={block.title}>
                       <h3>{block.title}</h3>
                       <div className="tag-row">
@@ -279,7 +309,7 @@ export default function Experience() {
                   <div className="folder-shell__lip" aria-hidden="true" />
 
                   <nav ref={tabsRef} className="folder-tabs" aria-label="Experience tabs">
-                    {ROLES.map((r, i) => (
+                    {roles.map((r, i) => (
                       <button
                         key={i}
                         className={`folder-tabs__tab${active === i ? ' is-active' : ''}`}
@@ -293,7 +323,7 @@ export default function Experience() {
                   </nav>
 
                   <div className="folder-deck" role="list">
-                    {ROLES.map((r, i) => (
+                    {roles.map((r, i) => (
                       <article
                         key={i}
                         ref={(el) => (cardRefs.current[i] = el)}
@@ -303,7 +333,7 @@ export default function Experience() {
                       >
                         <header className="folder-card__head">
                           <div className="folder-card__meta">
-                            <span className="mono">{String(i + 1).padStart(2, '0')} / {String(ROLES.length).padStart(2, '0')}</span>
+                            <span className="mono">{String(i + 1).padStart(2, '0')} / {String(roles.length).padStart(2, '0')}</span>
                             <span className="mono folder-card__when">{r.when}</span>
                             {r.current && <span className="folder-card__pill">Current</span>}
                           </div>
@@ -323,7 +353,7 @@ export default function Experience() {
                   {!staticMode && (
                     <div className="folder-progress" aria-hidden="true">
                       <span className="mono">
-                        {String(active + 1).padStart(2, '0')} &nbsp;/&nbsp; {String(ROLES.length).padStart(2, '0')}
+                        {String(active + 1).padStart(2, '0')} &nbsp;/&nbsp; {String(roles.length).padStart(2, '0')}
                       </span>
                       <span className="folder-progress__hint mono">Scroll to flip through</span>
                     </div>

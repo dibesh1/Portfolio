@@ -1,6 +1,9 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { fetchProjects } from '../lib/content.js';
 
-const PROJECTS = [
+// Fallback content, used when Supabase is unconfigured or unreachable so the
+// section always renders. Live data (when available) replaces it.
+const FALLBACK_PROJECTS = [
   {
     num: '01',
     kind: 'Machine Learning',
@@ -44,6 +47,27 @@ const PROJECTS = [
 ];
 
 export default function Projects() {
+  // Projects come from Supabase (published rows, ordered by sort_order); the
+  // built-in FALLBACK_PROJECTS render first and if the fetch yields nothing.
+  const [projects, setProjects] = useState(FALLBACK_PROJECTS);
+  useEffect(() => {
+    let active = true;
+    fetchProjects().then((data) => {
+      if (!active || !data || data.length === 0) return;
+      setProjects(
+        data.map((r) => ({
+          num: r.num,
+          kind: r.kind,
+          title: r.title_accent ? <>{r.title} <em>{r.title_accent}</em></> : r.title,
+          desc: r.description,
+          tags: r.tags || [],
+          hue: r.hue,
+        }))
+      );
+    });
+    return () => { active = false; };
+  }, []);
+
   // Gentle 3D tilt + cursor-follow sheen (pointer devices, motion allowed).
   const allowTilt =
     typeof window !== 'undefined' &&
@@ -156,7 +180,7 @@ export default function Projects() {
           onPointerCancel={onDragEnd}
           onMouseLeave={stopEdge}
         >
-          {PROJECTS.map((p, i) => (
+          {projects.map((p, i) => (
             <article
               key={i}
               className="work-card reveal"
